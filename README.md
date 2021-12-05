@@ -24,7 +24,7 @@ In Appendix A it can be found a more detailed overview of these attributes.
 
 It is known that the goal for the anonymization process is to maintain the quality of the dataset in the sense that it should still be possible to predict if the average yearly salary exceeds $50,000, while making sure that it is not possible to disclose any individual by performing a linkage attack. However, this brings an extra concern for the anonymization process: the trade-off between utility and privacy. The more the dataset privacy is increased, the less utility it will have, due to information loss, as seen below in Figure 1.
 
-<center>![privacy_utility_tradeoff](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/privacy_utility_tradeoff.png)</center>
+![privacy_utility_tradeoff](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/privacy_utility_tradeoff.png)
 
 <center>Figure 1 - Trade-off between privacy vs utility. Source:[8]</center>
 
@@ -72,7 +72,7 @@ Sensitive attributes represent the data which the data publishers want to direct
 
 QID attributes when combined with other QID attributes, can be used to identify entities in the dataset, (i.e., indirect identifiers) as these allow  for data correlation in re-identification attacks [17]. These can be seen as the intersection of two distinct dataset attributes, as seen in Figure 2.
 
-<center>![linkage_attack](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/linkage_attack.png)</center>
+![linkage_attack](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/linkage_attack.png)
 
 <center>Figure 2 - Example of how two datasets can be joined, leaking QIDs via attributes intersection. Source: [18]</center>
 
@@ -80,7 +80,7 @@ There are several approaches one can use to identify these attributes. One appro
 
 To prevent this kind of issues, another approach can be followed which relies on statistical analysis of the attribute. For this, two values are calculated: distinction and separation. Distinction tells how unique the values distribution is (e.g., individual names tend to have a higher distinction value, since it is not likely for a group of people to have the same name), while separation tells how unique a pair of attribute values is in comparison to all values present in the distribution (e.g., individual gender tends to have a lower separation value, as the distribution is often short (Male, Female, Other)). The higher these values are, the more confidence one has to say that the attribute is a QID. The following formulas describe how these values are calculated.
 
-<center>![distinction_separation_formulas](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/formulas/distinction_separation_formulas.png)</center>
+![distinction_separation_formulas](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/formulas/distinction_separation_formulas.png)
 
 To enhance the QID attributes elicitation and classification, a method that applies both described procedures was defined and used. The method starts by defining the attributes which the anonymizers believe are common in different datasets with equal domains (i.e., base QIDs). 
 Then, add a possible QID attribute for comparison with the base QIDs. Since the anonymizers believe these attributes are QIDs, then it is possible to compare the target attribute values, for both distinction and separation and analyze if these values increase significantly or not. To increase the confidence value, more target attributes should be added in comparison, to check if the distinction and separation values increased significantly. Once an attribute was found to be a potential QID, it is stored in a ranking list that is used to compare with new target attributes, so that a probabilistic metric can take place (e.g., attribute X was admitted as a QID previously with a Y distinct and separation value. When comparing with a new target attribute Z, and it has a distinct and separation value greater than Y, then it is possible to admit that the attribute Z is more probable to be a QID than attribute X).
@@ -99,7 +99,7 @@ Insensitive attributes, also known as other attributes, are those attributes tha
 
 Furthermore, the remaining attributes that were not classified as QID (race, capital-balance, native-country, relationship) are then considered insensitive.
 
-<center>![distinction_separation_original](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/distinction_separation_original.png)</center>
+![distinction_separation_original](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/distinction_separation_original.png)
  
 <center>Figure 3 - ARX provides an excellent view to compare the distinction and separation values of QID attributes</center>
 
@@ -114,13 +114,13 @@ As described before, QIDs are transformed during the anonymization process. To a
 
 For the classified QIDs, the authors of the report decided to focus on generalization and suppression, by creating interval, masking and order-based hierarchies, and balancing the generalization-suppression values. Interval-based hierarchies are specifically useful for numeric distributions as these can be divided given a ratio scale [11]. For this reason, an interval hierarchy for the attribute age was defined, which is the only QID with a numerical scale.
 
-<center>![age_hierarchy_tree.drawio](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/age_hierarchy_tree.drawio.png)</center>
+![age_hierarchy_tree.drawio](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/age_hierarchy_tree.drawio.png)
 
 <center>Figure 4 - Interval-based hierarchy for attribute age</center>
 
 For attribute sex, a masking-based hierarchy was defined, as these are especially useful for attributes which domain cannot be generalized in levels. Instead, information is hidden by applying a mask (typically character ‘*’) to the string characters.
 
-<center>![sex_hierarchy_tree.drawio](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/sex_hierarchy_tree.drawio.png)</center>
+![sex_hierarchy_tree.drawio](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/sex_hierarchy_tree.drawio.png)
  
 <center>Figure 5 - Masking-based hierarchy for attribute sex</center>
 
@@ -138,7 +138,7 @@ One thing to note about these hierarchies is that its creation in ARX provided a
 
 Some additional configurations can also be applied to increase or decrease both utility and privacy levels, by tunning the generalization and suppression parameters in ARX. As expected, if the generalization parameter is increased, the utility level will decrease as data is more general. On the other hand, by increasing the suppression parameter, the utility level may increase since instead of generalizing data, ARX will try to suppress potentially identifiable data.
 
-<center>![coding_model](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/coding_model.png)</center>
+![coding_model](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/coding_model.png)
 
 <center>Figure 6 - ARX allows the configuration of the generalization vs suppression parameters under the coding model tab</center>
 
@@ -148,7 +148,7 @@ For now, these values will be kept balanced (50%/50%) for initial anonymization 
 
 ARX offers a great view for analysis of re-identification risks based on the prosecutor, journalist and marketer attack models. These models try to identify a specific individual, any individual or as many individuals respectively, by calculating the size of equivalence classes (set of entries which QID attributes are equal [21]). Higher values of re-identification means that more and more dataset records are in risk of being identified, so a metric for privacy is to keep this as low as possible.
 
-<center>![reidentification_risks_original](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/reidentification_risks_original.png)</center>
+![reidentification_risks_original](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/reidentification_risks_original.png)
  
 <center>Figure 7 - Re-identification risks scores before anonymization</center>
 
@@ -172,7 +172,7 @@ The biggest weakness of k-Anonymity is equivalence classes with sensitive attrib
 
 As described earlier, the dataset in context contains two sensitive attributes: hours per week and income. It is known that income only admits two values, which is an issue when using k-Anonymity since it lacks diversity in the values distribution. To fix this issue and in order to use k-Anonymity, it will be required to use l-Diversity for the income attribute. Upon further analysis it was found that the hours per week distribution may also be vulnerable to diversity attacks as the majority of values are represented by the casual working hours per week, which is 40. Given this, it will also be necessary to apply l-Diversity to this attribute.
 
-<center>![hours_per_week_distribution](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/hours_per_week_distribution.png)</center>
+![hours_per_week_distribution](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/hours_per_week_distribution.png)
 
 <center>Figure 8 - Almost 47% of the inquires in the census work 40 hours per week</center>
 
@@ -184,7 +184,7 @@ Once these values are defined the first iteration of anonymization can take plac
 
 After the anonymization in ARX with the defined privacy models and parameters was executed, the first iteration values were analyzed. The first values analyzed were the attack models scores, to see if these had decreased. As depicted below in Figure 9, these values decreased by a lot, going from 65% to 0% in the prosecutor and journalist models. This was expected as the k value in use is high, increasing the generalization and thus privacy level of the dataset. However, despite solving the privacy level issue, 0% is a such a low score, meaning that the utility of the dataset must be very low.
 
-<center>![reidentification_risks_5anonymity_2diversity](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/reidentification_risks_5anonymity_2diversity.png)</center>
+![reidentification_risks_5anonymity_2diversity](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/reidentification_risks_5anonymity_2diversity.png)
 
 <center>Figure 9 - Re-identification risks scores with 5-Anonymity and 2-Diversity</center>
 
@@ -202,7 +202,7 @@ If it is really k-Anonymity the reason for such vague distributions, then settin
 
 After losing hope of achieving the anonymized dataset goal and destroying and building back the dataset with new configurations, it was noticed that no suppression level was defined. This particular parameter allows defining the percentage of the number of outliers that can be removed from the dataset during the anonymization process.
 
-<center>![suppression_limit](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/suppression_limit.png)</center>
+![suppression_limit](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/suppression_limit.png)
 
 <center>Figure 10 - ARX allows the configuration of the suppression level under the general settings tab</center>
 
@@ -212,11 +212,11 @@ Maybe this parameter will help as all the target attributes have missing values 
 
 Knowing that the suppression level parameter was the key point for increasing the utility level, some tweaks here and there were applied. It was noticed that distributions were not fully generalized from the 12% interval. The team decided to stick with this value to prevent more information loss in terms of data suppression. By looking to Figure 11 and Figure 12 it can be noticed that the re-identification risks are low (close to 0.6%), with very low success rate (approx. 1.3%) and a not so big loss of information (~25%). The odd thing about this suppression level if increased to really high values (> = 80 %), the information loss score is 0%. This is very strange as the number of suppressed records is the same in both 12 and 80% anonymizations.
 
-<center>![reidentification_risks_2anonymity_2diversity_12suppression](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/reidentification_risks_2anonymity_2diversity_12suppression.png)</center>
+![reidentification_risks_2anonymity_2diversity_12suppression](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/reidentification_risks_2anonymity_2diversity_12suppression.png)
 
 <center>Figure 11 - Re-identification risks scores with 2-Anonymity, 2-Diversity and 12% suppression</center>
 
-<center>![utility_score_2anonymity_2diversity_12suppression](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/utility_score_2anonymity_2diversity_12suppression.png)</center>
+![utility_score_2anonymity_2diversity_12suppression](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/utility_score_2anonymity_2diversity_12suppression.png)
 
 <center>Figure 12 - With 12% of suppression, approximately 25% of information is lost</center>
 
@@ -315,27 +315,27 @@ As a final note, the team has published the dataset sources, Kaggle, ARX and scr
 
 ### APPENDIX B – Original vs Anonymized Dataset Attributes Distribution
 
-<center>![age_distribution](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/age_distribution.png)</center>
+![age_distribution](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/age_distribution.png)
 
 <center>Figure 13 - Comparison between original (left) and anonymized dataset distributions for age attribute</center>
 
-<center>![education_distribution](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/education_distribution.png)</center>
+![education_distribution](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/education_distribution.png)
 
 <center>Figure 14 - Comparison between original (left) and anonymized dataset distributions for education attribute</center>
  
-<center>![marital_status_distribution](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/marital_status_distribution.png)</center>
+![marital_status_distribution](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/marital_status_distribution.png)
 
 <center>Figure 15 - Comparison between original (left) and anonymized dataset distributions for marital-status attribute</center>
  
-<center>![occupation_distribution](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/occupation_distribution.png)</center>
+![occupation_distribution](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/occupation_distribution.png)
 
 <center>Figure 16 - Comparison between original (left) and anonymized dataset distributions for occupation attribute</center>
 
-<center>![sex_distribution](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/sex_distribution.png)</center>
+![sex_distribution](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/sex_distribution.png)
 
 <center>Figure 17 - Comparison between original (left) and anonymized dataset distributions for sex attribute</center>
 
-<center>![workclass_distribution](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/workclass_distribution.png)</center>
+![workclass_distribution](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/workclass_distribution.png)
 
 <center>Figure 18 - Comparison between original (left) and anonymized dataset distributions for workclass attribute</center>
 
@@ -344,7 +344,7 @@ As a final note, the team has published the dataset sources, Kaggle, ARX and scr
 
 ### APPENDIX C – Original vs Anonymized Dataset Attributes Distinction and Separation Values
 
-<center>![distinction_separation_original_vs_anonymized](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/distinction_separation_original_vs_anonymized.png)</center>
+![distinction_separation_original_vs_anonymized](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/distinction_separation_original_vs_anonymized.png)
 
 <center>Figure 19 - Comparison between original (left) and anonymized dataset distinction and separation values</center>
 
@@ -353,18 +353,18 @@ As a final note, the team has published the dataset sources, Kaggle, ARX and scr
 
 ### APPENDIX D – Created Order-based Hierarchy Trees
 
-<center>![workclass_hierarchy_tree.drawio](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/workclass_hierarchy_tree.drawio.png)</center>
+![workclass_hierarchy_tree.drawio](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/workclass_hierarchy_tree.drawio.png)
 
 <center>Figure 20 - Order-based hierarchy for attribute workclass</center>
 
-<center>![education_hierarchy_tree.drawio](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/education_hierarchy_tree.drawio.png)</center>
+![education_hierarchy_tree.drawio](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/education_hierarchy_tree.drawio.png)
 
 <center>Figure 21 - Order-based hierarchy for attribute education</center>
 
-<center>![marital_status_hierarchy_tree.drawio](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/marital_status_hierarchy_tree.drawio.png)</center>
+![marital_status_hierarchy_tree.drawio](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/marital_status_hierarchy_tree.drawio.png)
   
 <center>Figure 22 - Order-based hierarchy for attribute marital-status</center>
 
-<center>![occupation_hierarchy_tree.drawio](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/occupation_hierarchy_tree.drawio.png)</center>
+![occupation_hierarchy_tree.drawio](https://raw.githubusercontent.com/freitzzz/trp-tp1/master/report/figures/occupation_hierarchy_tree.drawio.png)
 
 <center>Figure 23 - Order-based hierarchy for attribute occupation</center>
