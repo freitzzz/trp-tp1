@@ -1,0 +1,510 @@
+{
+  "metadata": {
+    "kernelspec": {
+      "language": "python",
+      "display_name": "Python 3",
+      "name": "python3"
+    },
+    "language_info": {
+      "pygments_lexer": "ipython3",
+      "nbconvert_exporter": "python",
+      "version": "3.6.4",
+      "file_extension": ".py",
+      "codemirror_mode": {
+        "name": "ipython",
+        "version": 3
+      },
+      "name": "python",
+      "mimetype": "text/x-python"
+    }
+  },
+  "nbformat_minor": 4,
+  "nbformat": 4,
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "source": "# ML101 - Algorithm 3: k-NN  <a class=\"anchor\" id=\"section_1\"></a>",
+      "metadata": {}
+    },
+    {
+      "cell_type": "markdown",
+      "source": "### Table of Contents\n\n* [Chapter 1](#section_2)\n    * [Section 1.1](#section_2_1)\n    * [Section 1.2](#section_2_2)\n* [Chapter 2](#section_3)\n    * [Section 2.1](#section_3_1)\n    * [Section 2.2](#section_3_2)\n* [Chapter 3](#section_4)  ",
+      "metadata": {}
+    },
+    {
+      "cell_type": "markdown",
+      "source": "* Hello everyone with the third algorithm of our ML101 journey which is k-NN. I am your Instructor Data Scientist Burak Celal. Today we will cover a new classification algorithm by using an income dataset. We will try to classify the income level of a person by using data and the k-NN algorithm. If you are ready and excited as much as I let's start.\n* ML101 yolculuğumuzun üçüncü algoritması olan k-NN ile herkese merhaba. Ben Eğitmen Veri Bilimciniz Burak Celal. Bugün bir gelir veri seti kullanarak yeni bir sınıflandırma algoritmasını ele alacağız. Verileri ve k-NN algoritmasını kullanarak bir kişinin gelir düzeyini sınıflandırmaya çalışacağız. Hazırsanız ve benim kadar heyecanlıysanız başlayalım.",
+      "metadata": {}
+    },
+    {
+      "cell_type": "markdown",
+      "source": "# Chapter 1: Read and Preprocess Data <a class=\"anchor\" id=\"section_2\"></a>",
+      "metadata": {}
+    },
+    {
+      "cell_type": "markdown",
+      "source": "* Before we dive into the k-NN, we need data to train our model. In this notebook, I have used the dataset named \"Adult Income Dataset\". This dataset contains information such as education level, relationship status, race, etc. about a person and our aim is to try to classify the income level of this person as \">50k\" or \"<=50k\". Let's read our data and check the top 5 rows by using the \"head\" method of pandas to see what we have in our columns.\n* k-NN algoritmasına dalmadan önce, modelimizi eğitmek için verilere ihtiyacımız var. Bu notebook'ta \"Adult Income Dataset\" isimli veri setini kullandım. Bu veri seti bir kişi hakkında eğitim düzeyi, ilişki durumu, ırk vb. bilgileri içermektedir ve amacımız bu kişinin gelir düzeyini \">50k\" veya \"<=50k\" olarak sınıflandırmaya çalışmaktır. Sütunlarımızda ne olduğunu görmek için verilerimizi okuyalım ve pandas kütüphanesinin \"head\" yöntemini kullanarak ilk 5 satırı kontrol edelim.",
+      "metadata": {}
+    },
+    {
+      "cell_type": "markdown",
+      "source": "# Chapter 1.1: Related Libraries <a class=\"anchor\" id=\"section_2_1\"></a>",
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": "import numpy as np # linear algebra\nimport pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)\nfrom sklearn.preprocessing import LabelEncoder #encode categoric data\nfrom sklearn.preprocessing import Normalizer #normalize numeric data\nfrom sklearn.model_selection import train_test_split #to split data\nfrom sklearn.neighbors import KNeighborsClassifier #our lovely classifier",
+      "metadata": {
+        "execution": {
+          "iopub.status.busy": "2021-12-05T12:56:14.793767Z",
+          "iopub.execute_input": "2021-12-05T12:56:14.794124Z",
+          "iopub.status.idle": "2021-12-05T12:56:14.799092Z",
+          "shell.execute_reply.started": "2021-12-05T12:56:14.794087Z",
+          "shell.execute_reply": "2021-12-05T12:56:14.798413Z"
+        },
+        "trusted": true
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": "# Chapter 1.2: Read Data and Preprocess <a class=\"anchor\" id=\"section_2_2\"></a>",
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": "import os\nfor dirname, _, filenames in os.walk('/kaggle/input'):\n    for filename in filenames:\n        print(os.path.join(dirname, filename))\n\n# You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using \"Save & Run All\" \n# You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session",
+      "metadata": {
+        "_uuid": "8f2839f25d086af736a60e9eeb907d3b93b6e0e5",
+        "_cell_guid": "b1076dfc-b9ad-4769-8c92-a6c4dae69d19",
+        "execution": {
+          "iopub.status.busy": "2021-12-05T12:56:14.800529Z",
+          "iopub.execute_input": "2021-12-05T12:56:14.800750Z",
+          "iopub.status.idle": "2021-12-05T12:56:14.818738Z",
+          "shell.execute_reply.started": "2021-12-05T12:56:14.800723Z",
+          "shell.execute_reply": "2021-12-05T12:56:14.818030Z"
+        },
+        "trusted": true
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": "#data = pd.read_csv('/kaggle/input/adult-income-dataset/adult.csv')\ndata = pd.read_csv('/kaggle/input/adult2kanonymity2ldiversity12suppressionlevel/anonymized.adult.data.csv')",
+      "metadata": {
+        "execution": {
+          "iopub.status.busy": "2021-12-05T12:56:14.819763Z",
+          "iopub.execute_input": "2021-12-05T12:56:14.820444Z",
+          "iopub.status.idle": "2021-12-05T12:56:14.907154Z",
+          "shell.execute_reply.started": "2021-12-05T12:56:14.820406Z",
+          "shell.execute_reply": "2021-12-05T12:56:14.906415Z"
+        },
+        "trusted": true
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": "data.head()",
+      "metadata": {
+        "execution": {
+          "iopub.status.busy": "2021-12-05T12:56:14.909361Z",
+          "iopub.execute_input": "2021-12-05T12:56:14.909886Z",
+          "iopub.status.idle": "2021-12-05T12:56:14.925869Z",
+          "shell.execute_reply.started": "2021-12-05T12:56:14.909842Z",
+          "shell.execute_reply": "2021-12-05T12:56:14.924949Z"
+        },
+        "trusted": true
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": "* As you can see we have both categorical and numerical data types in our columns. In this notebook, I have made two simple preprocessing operations which are \"Encoding\" and \"Normalization\". To find out which column to encode or which column to normalize we need data types of all of the columns. I have used two methods to create two lists that contain the names of categoric and numeric columns. Let's define our methods and make preprocessing steps to make our data ready for the k-NN algorithm.\n* Gördüğünüz gibi sütunlarımızda hem kategorik hem de sayısal veri türleri var. Bu notebook'ta \"Encoding\" ve \"Normalization\" olmak üzere iki basit önişleme işlemi yaptım. Hangi sütunun encode olacağını veya hangi sütunun normalleştirileceğini bulmak için tüm sütunların veri türlerine ihtiyacımız var. Kategorik ve sayısal sütunların adlarını içeren iki liste oluşturmak için iki method kullandım. Metotlarımızı tanımlayalım ve verilerimizi k-NN algoritmasına hazır hale getirmek için ön işleme adımlarını yapalım.",
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": "def object_cols(df):\n    return list(df.select_dtypes(include='object').columns)\n\ndef numerical_cols(df):\n    return list(df.select_dtypes(exclude='object').columns)",
+      "metadata": {
+        "execution": {
+          "iopub.status.busy": "2021-12-05T12:56:14.927301Z",
+          "iopub.execute_input": "2021-12-05T12:56:14.927776Z",
+          "iopub.status.idle": "2021-12-05T12:56:14.933169Z",
+          "shell.execute_reply.started": "2021-12-05T12:56:14.927733Z",
+          "shell.execute_reply": "2021-12-05T12:56:14.932283Z"
+        },
+        "trusted": true
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": "obj_col = object_cols(data)\nnum_col = numerical_cols(data)",
+      "metadata": {
+        "execution": {
+          "iopub.status.busy": "2021-12-05T12:56:14.934622Z",
+          "iopub.execute_input": "2021-12-05T12:56:14.935051Z",
+          "iopub.status.idle": "2021-12-05T12:56:14.952588Z",
+          "shell.execute_reply.started": "2021-12-05T12:56:14.935016Z",
+          "shell.execute_reply": "2021-12-05T12:56:14.951468Z"
+        },
+        "trusted": true
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": "obj_col",
+      "metadata": {
+        "execution": {
+          "iopub.status.busy": "2021-12-05T12:56:14.954075Z",
+          "iopub.execute_input": "2021-12-05T12:56:14.954455Z",
+          "iopub.status.idle": "2021-12-05T12:56:14.974041Z",
+          "shell.execute_reply.started": "2021-12-05T12:56:14.954411Z",
+          "shell.execute_reply": "2021-12-05T12:56:14.973376Z"
+        },
+        "trusted": true
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": "num_col",
+      "metadata": {
+        "execution": {
+          "iopub.status.busy": "2021-12-05T12:56:14.975152Z",
+          "iopub.execute_input": "2021-12-05T12:56:14.975592Z",
+          "iopub.status.idle": "2021-12-05T12:56:14.987791Z",
+          "shell.execute_reply.started": "2021-12-05T12:56:14.975559Z",
+          "shell.execute_reply": "2021-12-05T12:56:14.986933Z"
+        },
+        "trusted": true
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": "le = LabelEncoder()\nnorm = Normalizer()",
+      "metadata": {
+        "execution": {
+          "iopub.status.busy": "2021-12-05T12:56:14.989974Z",
+          "iopub.execute_input": "2021-12-05T12:56:14.990241Z",
+          "iopub.status.idle": "2021-12-05T12:56:15.000933Z",
+          "shell.execute_reply.started": "2021-12-05T12:56:14.990181Z",
+          "shell.execute_reply": "2021-12-05T12:56:14.999935Z"
+        },
+        "trusted": true
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": "#Label encoding\nfor col in obj_col:\n    data[col] = le.fit_transform(data[col])",
+      "metadata": {
+        "execution": {
+          "iopub.status.busy": "2021-12-05T12:56:15.001983Z",
+          "iopub.execute_input": "2021-12-05T12:56:15.002255Z",
+          "iopub.status.idle": "2021-12-05T12:56:15.077813Z",
+          "shell.execute_reply.started": "2021-12-05T12:56:15.002221Z",
+          "shell.execute_reply": "2021-12-05T12:56:15.076922Z"
+        },
+        "trusted": true
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": "#Normalize\ndata[num_col] = norm.fit_transform(data[num_col])",
+      "metadata": {
+        "execution": {
+          "iopub.status.busy": "2021-12-05T12:56:15.078926Z",
+          "iopub.execute_input": "2021-12-05T12:56:15.079146Z",
+          "iopub.status.idle": "2021-12-05T12:56:15.093387Z",
+          "shell.execute_reply.started": "2021-12-05T12:56:15.079120Z",
+          "shell.execute_reply": "2021-12-05T12:56:15.092401Z"
+        },
+        "trusted": true
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": "data.head()",
+      "metadata": {
+        "execution": {
+          "iopub.status.busy": "2021-12-05T12:56:15.095087Z",
+          "iopub.execute_input": "2021-12-05T12:56:15.095519Z",
+          "iopub.status.idle": "2021-12-05T12:56:15.109211Z",
+          "shell.execute_reply.started": "2021-12-05T12:56:15.095482Z",
+          "shell.execute_reply": "2021-12-05T12:56:15.108507Z"
+        },
+        "trusted": true
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": "* We have created a dataframe that contains only numeric values. Some of these values are encoded from categorical columns(obj_col) and some of them are normalized by using numerical columns(num_col). There may be better ways to preprocess this data but in this notebook, our aim is to learn what is k-NN algorithm hence we will stop our preprocessing phase right here and we will continue with the k-NN algorithm. \n* Yalnızca sayısal değerler içeren bir dataframe oluşturduk. Bu değerlerin bir kısmı kategorik sütunlardan(obj_col) encode edildi ve bir kısmı sayısal sütunlar(num_col) kullanılarak normalize edilmiştir. Bu verileri ön işlemenin daha iyi yolları olabilir ama bu notebook'ta amacımız k-NN algoritmasının ne olduğunu öğrenmek olduğu için ön işleme aşamamızı burada durduracağız ve k-NN algoritması ile devam edeceğiz.",
+      "metadata": {}
+    },
+    {
+      "cell_type": "markdown",
+      "source": "# Chapter 2: k-NN Algorithm with sklearn <a class=\"anchor\" id=\"section_3\"></a>",
+      "metadata": {}
+    },
+    {
+      "cell_type": "markdown",
+      "source": "# Chapter 2.1: Fit Model <a class=\"anchor\" id=\"section_3_1\"></a>",
+      "metadata": {}
+    },
+    {
+      "cell_type": "markdown",
+      "source": "* We are ready to fit a k-NN algorithm to classify the income level of a person. To do this we need train data and to obtain this we will use the train_test_split method of the sklearn. Our X data will be the all of the columns of the dataframe except the \"income\" column and the y data will be the \"income\" column just as you think. Let's create X and y data and apply train_test_split method.\n* Bir kişinin gelir seviyesini sınıflandırmak için bir k-NN algoritmasını eğitmeye hazırız. Bunu yapmak için eğitim verilerine ihtiyacımız var ve bunu elde etmek için sklearn'in train_test_split yöntemini kullanacağız. X verimiz, dataframe'deki \"income\" sütunu dışındaki tüm sütunları olacak ve y verisi, düşündüğünüz gibi \"income\" sütunu olacaktır. X ve y verilerini oluşturalım ve train_test_split yöntemini uygulayalım.",
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": "X = data.drop(['income'], axis = 1)\ny = data['income']",
+      "metadata": {
+        "execution": {
+          "iopub.status.busy": "2021-12-05T12:56:15.110309Z",
+          "iopub.execute_input": "2021-12-05T12:56:15.110639Z",
+          "iopub.status.idle": "2021-12-05T12:56:15.125029Z",
+          "shell.execute_reply.started": "2021-12-05T12:56:15.110610Z",
+          "shell.execute_reply": "2021-12-05T12:56:15.124300Z"
+        },
+        "trusted": true
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": "X_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.33, random_state=42)",
+      "metadata": {
+        "execution": {
+          "iopub.status.busy": "2021-12-05T12:56:15.126237Z",
+          "iopub.execute_input": "2021-12-05T12:56:15.126636Z",
+          "iopub.status.idle": "2021-12-05T12:56:15.142131Z",
+          "shell.execute_reply.started": "2021-12-05T12:56:15.126603Z",
+          "shell.execute_reply": "2021-12-05T12:56:15.141024Z"
+        },
+        "trusted": true
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": "* Looks like we do have not any obstacle to train our k-NN algorithm. From now we will do too many things. Firstly we will fit a k-NN model by using default parameters. After then, we will use the \"predict\" method to see the class of a specific value. Then we will try to understand what really happened once we call the \"predict\" method by using some other methods. I know our way may look long but believe me it is not long. Let's start by \"training\" and \"predicting\" steps.\n* Görünüşe göre k-NN algoritmamızı eğitmek için herhangi bir engelimiz yok. Şu andan itibaren çok fazla şey yapacağız. Öncelikle varsayılan parametreleri kullanarak bir k-NN modeli oluşturacağız. Sonra, belirli bir değerin sınıfını görmek için \"predict\" yöntemini kullanacağız. Daha sonra başka yöntemler kullanarak \"tahmin\" yöntemini çağırdığımızda gerçekte ne olduğunu anlamaya çalışacağız. Yolumuzun uzun görünebileceğini biliyorum ama inanın uzun değil. \"Eğitim\" ve \"tahmin etme\" adımlarıyla başlayalım.",
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": "knn = KNeighborsClassifier() #create a k-NN instance\nfit_knn = knn.fit(X_train, y_train) #fitting model by using \"fit\" method\ns_value = X_test[:1] #specific value to predict\nprint('Predicted class value is : {0}'.format(fit_knn.predict(s_value)))",
+      "metadata": {
+        "execution": {
+          "iopub.status.busy": "2021-12-05T12:56:15.143336Z",
+          "iopub.execute_input": "2021-12-05T12:56:15.143676Z",
+          "iopub.status.idle": "2021-12-05T12:56:15.598441Z",
+          "shell.execute_reply.started": "2021-12-05T12:56:15.143643Z",
+          "shell.execute_reply": "2021-12-05T12:56:15.597560Z"
+        },
+        "trusted": true
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": "* Right now you may say \"What happened?\". Firstly we have created a k-NN instance by using the model from the sklearn. We did not set any value for any parameter hence it has been created by default parameters. After then we have used our \"train\" data to train our model. We have chosen a specific value from our test dataset and tried to predict the class of this value. But what really happened once we call the \"predict\" method? Try to imagine that you are a k-NN algorithm. You have tons of data in a plane. You exactly know the locations of these data and the classes of these data. One day a new instance is coming to your plane through \"predict\" method's passage. You know where to put this data by using the location values of this data. And also you know the distance between this data point and the other data points in your plane and the class values of the other data points in your plane. Can you assign a class value by using this information? Yes, you can and the way to assign class values is passing from the distances. Let's start by calling a method to see the distance to the closest top 5 data points.\n* Şimdi \"Ne oldu?\" diyebilirsiniz. Öncelikle sklearn'deki modeli kullanarak bir k-NN örneği oluşturduk. Herhangi bir parametre için herhangi bir değer belirlemedik, bu nedenle varsayılan parametrelerle oluşturuldu. Daha sonra modelimizi eğitmek için \"eğitim\" verilerimizi kullandık. Test veri setimizden belirli bir değer seçtik ve bu değerin sınıfını tahmin etmeye çalıştık. Ama \"predict\" metodunu çağırdığımızda gerçekten ne oldu? Bir k-NN algoritması olduğunuzu hayal etmeye çalışın. Bir düzlemde tonlarca veri var. Bu verilerin konumlarını ve bu verilerin sınıflarını tam olarak biliyorsunuz. Bir gün \"tahmin\" yönteminin geçitinden düzleme yeni bir örnek geliyor. Bu örneğin konum değerlerini kullanarak bu örneği nereye koyacağınızı bilirsiniz. Ayrıca bu veri noktası ile düzleminizdeki diğer veri noktaları arasındaki mesafeyi ve düzleminizdeki diğer veri noktalarının sınıf değerlerini de biliyorsunuz. Bu bilgiyi kullanarak bir sınıf değeri atayabilir misiniz? Evet yapabilirsiniz ve sınıf değerleri atamanın yolu mesafelerden geçmektir. En yakın ilk 5 veri noktasına olan mesafeyi görmek için bir yöntem çağırarak başlayalım.",
+      "metadata": {}
+    },
+    {
+      "cell_type": "markdown",
+      "source": "# Chapter 2.2: What Happened Once We Call \"predict\"?  <a class=\"anchor\" id=\"section_3_2\"></a>",
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": "distance_matrix = fit_knn.kneighbors_graph(s_value, mode = \"distance\") #distance value matrix",
+      "metadata": {
+        "execution": {
+          "iopub.status.busy": "2021-12-05T12:56:15.599866Z",
+          "iopub.execute_input": "2021-12-05T12:56:15.600336Z",
+          "iopub.status.idle": "2021-12-05T12:56:15.608364Z",
+          "shell.execute_reply.started": "2021-12-05T12:56:15.600293Z",
+          "shell.execute_reply": "2021-12-05T12:56:15.607411Z"
+        },
+        "trusted": true
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": "* The k-NN algorithm has a magical method which is \"kneighbors_graph\". This method allows you to see the distance between the given data and the train data for the k nearest neighbors. The data type of the output of this method is sparse matrix which is a special data structure in Python. This matrix contains information only if the value is valid (in our case if the value is one of the nearest five values) else the value is assigned as \"zero\". If you get the indices of the non-zero elements in our sparse matrix, you can find the indices of the k nearest neighbors of the given data point. Let's do it!\n* k-NN algoritması adı \"kneighbors_graph\" olan sihirli bir metoda sahiptir. Bu yöntem, en yakın k komşu için verilen veriler ile eğitim verileri arasındaki mesafeyi görmenizi sağlar. Bu yöntemin çıktısının veri türü Python'da özel bir veri yapısı olan sparse matristir. Bu matris, yalnızca değer geçerliyse (bizim durumumuzda değer en yakın beş değerden biriyse) bilgi içerir, aksi takdirde değer \"sıfır\" olarak atanır. Seyrek matrisimizde sıfır olmayan elemanların indekslerini alırsanız, verilen veri noktasının en yakın k komşusunun indekslerini bulabilirsiniz. Haydi Yapalım!",
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": "ind = distance_matrix.nonzero() # indexes of non-zero elements\nind",
+      "metadata": {
+        "execution": {
+          "iopub.status.busy": "2021-12-05T12:56:15.609692Z",
+          "iopub.execute_input": "2021-12-05T12:56:15.609999Z",
+          "iopub.status.idle": "2021-12-05T12:56:15.623601Z",
+          "shell.execute_reply.started": "2021-12-05T12:56:15.609957Z",
+          "shell.execute_reply": "2021-12-05T12:56:15.622503Z"
+        },
+        "trusted": true
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": "* The sparse matrices have a method named \"nonzero\". This method returns the indices of the rows and the corresponding column values. In our example, the related column values are the indices of the samples in the y values which we have created from our dataframe. Let's create a list that contains class values of the instances to classify our data point.\n* Sparse matrislerin \"nonzero\" adlı bir metodu vardır. Bu metot, satırların indekslerini ve karşılık gelen sütun değerlerini döndürür. Örneğimizde ilgili sütun değerleri dataframe'den oluşturduğumuz y değerlerindeki örneklerin indeksleridir. Veri noktamızı sınıflandırmak için örneklerin sınıf değerlerini içeren bir liste oluşturalım.",
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": "k_nearest_classes = [y_train.iloc[val[1]] for val in zip(*distance_matrix.nonzero())]\nk_nearest_classes",
+      "metadata": {
+        "execution": {
+          "iopub.status.busy": "2021-12-05T12:56:15.625358Z",
+          "iopub.execute_input": "2021-12-05T12:56:15.626256Z",
+          "iopub.status.idle": "2021-12-05T12:56:15.636340Z",
+          "shell.execute_reply.started": "2021-12-05T12:56:15.626177Z",
+          "shell.execute_reply": "2021-12-05T12:56:15.635445Z"
+        },
+        "trusted": true
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": "* Now we know the class values of the 5 nearest neighbors. The class value of five of them is \"0\" and the rest is \"1\". So we can say that this data point belongs to the class \"0\" with a %100 probability. If there were two probabilities such as %60 to %40, we could say that this data point will be a \"0\" with a higher probability than \"1\". And this is what k-NN does to classify an instance. It creates a distance matrix that contains information about k nearest neighbors and by using this information it gets the nearest class values firstly. After then it uses these probability values to assign a class value to the given data point. Let's check that did we do everything right!\n* Şimdi en yakın 5 komşunun sınıf değerlerini biliyoruz. Beş tanesinin sınıf değeri \"0\", geri kalanı \"1\"dir. Yani bu veri noktasının %100 olasılıkla \"0\" sınıfına ait olduğunu söyleyebiliriz. %60 ile %40 gibi iki olasılık olsaydı, bu veri noktasının \"1\"den daha yüksek olasılıkla \"0\" olacağını söyleyebiliriz. Ve bu, bir örneği sınıflandırmak için k-NN'nin yaptığı şeydir. En yakın k komşu hakkında bilgi içeren bir uzaklık matrisi oluşturur ve bu bilgiyi kullanarak ilk olarak en yakın sınıf değerlerini alır. Daha sonra verilen veri noktasına bir sınıf değeri atamak için bu olasılık değerlerini kullanır. Her şeyi doğru yapıp yapmadığımızı kontrol edelim!",
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": "print(fit_knn.predict_proba(s_value))",
+      "metadata": {
+        "execution": {
+          "iopub.status.busy": "2021-12-05T12:56:15.637381Z",
+          "iopub.execute_input": "2021-12-05T12:56:15.637608Z",
+          "iopub.status.idle": "2021-12-05T12:56:15.650290Z",
+          "shell.execute_reply.started": "2021-12-05T12:56:15.637581Z",
+          "shell.execute_reply": "2021-12-05T12:56:15.649143Z"
+        },
+        "trusted": true
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": "* The algorithm returns a 1x2 matrix that contains probability values of the classes. The sklearn, orders the given classes by lexicographic orders which means in our example the first column will refer to \"0\" and the second one will refer to \"1\". The float values in the cells refer to the probabilities of the classes. In our example, the given data point will belong to the class \"0\" with a probability of %100. Let's check the distance between this given sample and the 5 nearest neighbors.\n* Algoritma, sınıfların olasılık değerlerini içeren 1x2'lik bir matris döndürür. Sklearn, verilen sınıfları sözlük sırasına göre sıralar, yani örneğimizde ilk sütun \"0\" ve ikinci sütun \"1\" anlamına gelir. Hücrelerdeki float değerler, sınıfların olasılıklarını ifade eder. Örneğimizde, verilen veri noktası %100 olasılıkla \"0\" sınıfına ait olacaktır. Bu verilen örnek ile en yakın 5 komşu arasındaki mesafeyi kontrol edelim.",
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": "s_value",
+      "metadata": {
+        "execution": {
+          "iopub.status.busy": "2021-12-05T12:56:15.651610Z",
+          "iopub.execute_input": "2021-12-05T12:56:15.651846Z",
+          "iopub.status.idle": "2021-12-05T12:56:15.668409Z",
+          "shell.execute_reply.started": "2021-12-05T12:56:15.651815Z",
+          "shell.execute_reply": "2021-12-05T12:56:15.667407Z"
+        },
+        "trusted": true
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": "dis = distance_matrix[distance_matrix.nonzero()] # non-zero distances\ndis",
+      "metadata": {
+        "execution": {
+          "iopub.status.busy": "2021-12-05T12:56:15.669608Z",
+          "iopub.execute_input": "2021-12-05T12:56:15.670268Z",
+          "iopub.status.idle": "2021-12-05T12:56:15.677052Z",
+          "shell.execute_reply.started": "2021-12-05T12:56:15.670219Z",
+          "shell.execute_reply": "2021-12-05T12:56:15.676334Z"
+        },
+        "trusted": true
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": "k_near = pd.DataFrame()\nfor val in zip(*distance_matrix.nonzero()):\n    k_near = k_near.append(X_train.iloc[val[1]], ignore_index = True)\nk_near",
+      "metadata": {
+        "execution": {
+          "iopub.status.busy": "2021-12-05T12:56:15.678031Z",
+          "iopub.execute_input": "2021-12-05T12:56:15.678254Z",
+          "iopub.status.idle": "2021-12-05T12:56:15.821320Z",
+          "shell.execute_reply.started": "2021-12-05T12:56:15.678224Z",
+          "shell.execute_reply": "2021-12-05T12:56:15.820450Z"
+        },
+        "trusted": true
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": "* Firstly we have printed the s_value to see the sample which we are working on it. Then, we have got the distance values from the sparse matrix by using the \"nonzero\" method. Finally, we have created a dataframe that contains only k nearest neighbors of the given data. This data point looks so similar to the neighbors. But what about the other ones? Let's see the mean accuracy score for our k-NN algorithm by using the \"score\" method of the k-NN algorithm.\n* Öncelikle üzerinde çalıştığımız örneği görmek için s_value değerini yazdırdık. Ardından, \"nonzero\" metodunu kullanarak sparse matristen uzaklık değerlerini elde ettik. Son olarak, verilen verinin yalnızca k en yakın komşusunu içeren bir dataframe oluşturduk. Bu veri noktası komşularına çok benziyor. Peki ya diğerleri? k-NN algoritmasının \"score\" metodunu kullanarak k-NN algoritmamız için ortalama doğruluk puanını görelim.",
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": "fit_knn.score(X_test, y_test)",
+      "metadata": {
+        "execution": {
+          "iopub.status.busy": "2021-12-05T12:56:15.822477Z",
+          "iopub.execute_input": "2021-12-05T12:56:15.822711Z",
+          "iopub.status.idle": "2021-12-05T12:56:17.068065Z",
+          "shell.execute_reply.started": "2021-12-05T12:56:15.822682Z",
+          "shell.execute_reply": "2021-12-05T12:56:17.067086Z"
+        },
+        "trusted": true
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": "* As you can see we are predicting with an %82 accuracy score. This value may be good but we only tried one k-NN model in here. So there may be better k-NN models. So what is next?\n* Gördüğünüz gibi %82 doğruluk puanı ile tahmin yapıyoruz. Bu değer iyi olabilir ama biz burada sadece bir k-NN modelini denedik. Yani daha iyi k-NN modelleri olabilir. Peki sırada ne var?",
+      "metadata": {}
+    },
+    {
+      "cell_type": "markdown",
+      "source": "# Chapter 3: What is Next? <a class=\"anchor\" id=\"section_4\"></a>",
+      "metadata": {}
+    },
+    {
+      "cell_type": "markdown",
+      "source": "* I suggest you try different k-NN models by using different parameters. You can check my blog posts about k-NN and sklearn which I explained all of the parameters, attributes, and methods of the k-NN algorithm by using the link https://medium.com/@bcelalakyuz. Next week I will explain what is decision tree and how it is learning by using a dataset from Kaggle. If you have any questions about k-NN or about the other algorithms of the ML101 series, do not hesitate to reach me via comments, Kaggle mail, or via bcelalakyuz@gmail.com. I wish you a healthy and happy week until we see each other again.\n* Farklı parametreler kullanarak farklı k-NN modellerini denemenizi öneririm. k-NN algoritmasının tüm parametrelerini, özelliklerini ve yöntemlerini anlattığım k-NN ve sklearn ile ilgili blog yazılarıma https://medium.com/@bcelalakyuz linkinden ulaşabilirsiniz. Önümüzdeki hafta karar ağacının ne olduğunu ve nasıl öğrendiğini Kaggle'dan bir veri seti kullanarak açıklayacağım. k-NN veya ML101 serisinin diğer algoritmaları hakkında herhangi bir sorunuz varsa, yorum, Kaggle mail veya bcelalakyuz@gmail.com aracılığıyla bana ulaşmaktan çekinmeyin. Tekrar görüşene kadar sağlıklı ve mutlu bir hafta dilerim.",
+      "metadata": {}
+    }
+  ]
+}
